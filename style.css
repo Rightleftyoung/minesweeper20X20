@@ -156,3 +156,34 @@ button {
     -ms-user-select: none;
     user-select: none;
 }
+
+.mobile-control-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.mobile-control-btn:active {
+    background-color: #45a049;
+}
+
+.mobile-control-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#mobile-controls {
+    margin-top: 20px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+}

@@ -88,7 +88,84 @@ const styleSheet = document.createElement("style");
 styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
-// Modify createGrid function
+// Add this function to create mobile controls
+function createMobileControls() {
+    const controlsDiv = document.createElement('div');
+    controlsDiv.id = 'mobile-controls';
+    controlsDiv.style.marginTop = '20px';
+    controlsDiv.style.display = 'flex';
+    controlsDiv.style.justifyContent = 'center';
+    controlsDiv.style.gap = '10px';
+    controlsDiv.style.flexWrap = 'wrap';
+
+    // Create mode toggle button
+    const modeToggle = document.createElement('button');
+    modeToggle.textContent = 'Mode: Reveal';
+    modeToggle.className = 'mobile-control-btn';
+    
+    // Create quick reveal button (for double-click functionality)
+    const quickRevealBtn = document.createElement('button');
+    quickRevealBtn.textContent = 'Quick Reveal';
+    quickRevealBtn.className = 'mobile-control-btn';
+    
+    // Create small bomb button
+    const smallBombBtn = document.createElement('button');
+    smallBombBtn.textContent = 'Small Bomb (599 pts)';
+    smallBombBtn.className = 'mobile-control-btn';
+    
+    let isRevealMode = true;
+    let selectedCell = null;
+
+    // Mode toggle handler
+    modeToggle.addEventListener('click', () => {
+        isRevealMode = !isRevealMode;
+        modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
+    });
+
+    // Quick reveal handler
+    quickRevealBtn.addEventListener('click', () => {
+        if (selectedCell && doubleClickEnabled) {
+            handleDoubleClick(selectedCell);
+        }
+    });
+
+    // Small bomb handler
+    smallBombBtn.addEventListener('click', () => {
+        if (totalPoints >= 599 && smallBombAvailable && gameActive) {
+            alert('Select a cell to use the Small Bomb');
+            const oldMode = isRevealMode;
+            isRevealMode = 'bomb';
+            
+            const bombHandler = (e) => {
+                const cell = e.target.closest('.cell');
+                if (cell) {
+                    detonateSmallBomb(parseInt(cell.dataset.index));
+                    isRevealMode = oldMode;
+                    document.removeEventListener('click', bombHandler);
+                }
+            };
+            
+            document.addEventListener('click', bombHandler);
+        } else {
+            alert('Not enough points or Small Bomb already used!');
+        }
+    });
+
+    // Add the buttons to the controls div
+    controlsDiv.appendChild(modeToggle);
+    controlsDiv.appendChild(quickRevealBtn);
+    controlsDiv.appendChild(smallBombBtn);
+
+    // Add the controls to the page
+    document.getElementById('game-wrapper').appendChild(controlsDiv);
+
+    return {
+        isRevealMode: () => isRevealMode,
+        setSelectedCell: (cell) => { selectedCell = cell; }
+    };
+}
+
+// Modify createGrid to use the mobile controls
 function createGrid() {
     const gridElement = document.getElementById('grid');
     gridElement.style.display = 'grid';
@@ -100,94 +177,32 @@ function createGrid() {
     
     gridElement.innerHTML = '';
     grid = [];
-    
-    // Prevent text selection on the entire grid
-    gridElement.addEventListener('selectstart', (e) => e.preventDefault());
-    gridElement.addEventListener('contextmenu', (e) => e.preventDefault());
-    
+
+    const mobileControls = createMobileControls();
+
     for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
         cell.dataset.index = i;
-        
-        // Variables for touch handling
-        let lastTap = 0;
-        let longPressTimer = null;
-        let isSwiping = false;
-        
-        // Touch start handler
-        cell.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            isSwiping = false;
-            
-            const currentTime = new Date().getTime();
-            const tapGap = currentTime - lastTap;
-            
-            if (tapGap < 300 && tapGap > 0) {
-                // Clear any pending long press
-                if (longPressTimer) clearTimeout(longPressTimer);
-                
-                // Double tap detected
-                if (doubleClickEnabled) {
-                    console.log('Double tap detected');  // Debug log
-                    handleDoubleClick(cell);
-                }
-                lastTap = 0;  // Reset last tap
-            } else {
-                // Start long press timer
-                longPressTimer = setTimeout(() => {
-                    if (!isSwiping) {
-                        console.log('Long press detected');  // Debug log
-                        handleRightClick(e, cell);
-                    }
-                }, 500);
-                
-                lastTap = currentTime;
-            }
-        }, { passive: false });
-        
-        // Touch move handler
-        cell.addEventListener('touchmove', () => {
-            isSwiping = true;
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-            }
-        });
-        
-        // Touch end handler
-        cell.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            
-            // Clear long press timer
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-            }
-            
-            // If not swiping and not a double tap, handle as single tap
-            if (!isSwiping && (new Date().getTime() - lastTap) >= 300) {
-                console.log('Single tap detected');  // Debug log
-                handleClick(cell);
-            }
-        });
-        
-        // Keep desktop events
+
+        // Single touch/click handler
         cell.addEventListener('click', (e) => {
             e.preventDefault();
-            handleClick(cell);
+            mobileControls.setSelectedCell(cell);
+            
+            if (mobileControls.isRevealMode() === true) {
+                handleClick(cell);
+            } else if (mobileControls.isRevealMode() === false) {
+                handleRightClick(e, cell);
+            }
         });
-        
+
+        // Keep desktop right-click
         cell.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             handleRightClick(e, cell);
         });
-        
-        cell.addEventListener('dblclick', (e) => {
-            e.preventDefault();
-            if (doubleClickEnabled) {
-                handleDoubleClick(cell);
-            }
-        });
-        
+
         gridElement.appendChild(cell);
         grid[i] = cell;
     }
