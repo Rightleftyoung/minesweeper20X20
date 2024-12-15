@@ -736,18 +736,8 @@ function updateSmallBombButton() {
 }
 
 function useSmallBomb(cell) {
-    console.log('Small bomb function called'); // Debug log
-    
-    if (!gameActive) {
-        alert('Game is not active');
-        return;
-    }
-    if (!smallBombAvailable) {
-        alert('Small Bomb has already been used');
-        return;
-    }
-    if (totalPoints < 599) {
-        alert('Not enough points! Need 599 points to use Small Bomb');
+    if (!gameActive || !smallBombAvailable || totalPoints < 599) {
+        alert('Cannot use Small Bomb: Not enough points or already used');
         return;
     }
 
