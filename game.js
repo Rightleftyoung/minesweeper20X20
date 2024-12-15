@@ -214,6 +214,10 @@ function createGrid() {
             
             switch(mode) {
                 case 'bomb':
+                    if (smallBombUsedThisGame) {
+                        alert('Small Bomb has already been used in this game');
+                        return;
+                    }
                     useSmallBomb(cell);
                     break;
                 case 'flag':
