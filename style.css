@@ -24,6 +24,10 @@ body {
     border: 1px solid #999;
     margin: 0 auto;
     width: fit-content;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .cell {
@@ -42,7 +46,7 @@ body {
     -moz-user-select: none;      /* Firefox */
     -ms-user-select: none;       /* Internet Explorer/Edge */
     user-select: none;           /* Non-prefixed version */
-    touch-action: manipulation;  /* Disable double-tap to zoom */
+    touch-action: none;
 }
 
 .cell.revealed {

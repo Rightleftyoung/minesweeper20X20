@@ -106,34 +106,59 @@ function createGrid() {
         cell.className = 'cell';
         cell.dataset.index = i;
         
-        // Single click/tap handler
-        cell.addEventListener('click', () => handleClick(cell));
+        // Mobile touch events
+        let touchStartTime = 0;
+        let touchTimer = null;
+        let hasMoved = false;
         
-        // Right click handler (desktop)
-        cell.addEventListener('contextmenu', (e) => handleRightClick(e, cell));
-        
-        // Double tap handler (mobile)
-        let lastTap = 0;
-        cell.addEventListener('touchend', (e) => {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
+        // Touch start - begin timing for long press
+        cell.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent default behavior
+            touchStartTime = Date.now();
+            hasMoved = false;
             
-            if (tapLength < 500 && tapLength > 0) {
-                // Double tap detected
-                e.preventDefault();
-                if (doubleClickEnabled) {
-                    handleDoubleClick(cell);
+            // Set up long press timer
+            touchTimer = setTimeout(() => {
+                if (!hasMoved) {
+                    handleRightClick(e, cell); // Flag cell on long press
+                }
+            }, 500); // 500ms for long press
+        });
+        
+        // Touch move - cancel if user moves finger
+        cell.addEventListener('touchmove', () => {
+            hasMoved = true;
+            if (touchTimer) {
+                clearTimeout(touchTimer);
+            }
+        });
+        
+        // Touch end - handle tap and double tap
+        cell.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (touchTimer) {
+                clearTimeout(touchTimer);
+            }
+            
+            const touchEndTime = Date.now();
+            const touchDuration = touchEndTime - touchStartTime;
+            
+            if (!hasMoved) {
+                if (touchDuration < 500) { // Short tap
+                    handleClick(cell);
                 }
             }
-            lastTap = currentTime;
         });
-
-        // Double click handler (desktop)
-        cell.addEventListener('dblclick', (e) => {
-            if (doubleClickEnabled) {
-                e.preventDefault();
-                handleDoubleClick(cell);
-            }
+        
+        // Keep desktop events
+        cell.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleClick(cell);
+        });
+        
+        cell.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            handleRightClick(e, cell);
         });
         
         gridElement.appendChild(cell);
