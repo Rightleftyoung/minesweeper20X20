@@ -130,12 +130,17 @@ function createMobileControls() {
     controlsDiv.appendChild(flagBtn);
     controlsDiv.appendChild(revealBtn);
 
-    // Insert controls after the timer
+    // Create a container for timer and controls
+    const headerContainer = document.createElement('div');
+    headerContainer.id = 'header-container';
+    
+    // Move timer into header container
     const timerDisplay = document.getElementById('timer');
     if (timerDisplay) {
-        timerDisplay.parentNode.insertBefore(controlsDiv, timerDisplay.nextSibling);
-    } else {
-        document.getElementById('game-wrapper').appendChild(controlsDiv);
+        const timerParent = timerDisplay.parentNode;
+        headerContainer.appendChild(timerDisplay);
+        headerContainer.appendChild(controlsDiv);
+        timerParent.appendChild(headerContainer);
     }
 
     return {

@@ -144,17 +144,25 @@ button {
     user-select: none;
 }
 
-#mobile-controls {
+#header-container {
     position: fixed;
-    top: 120px;
+    top: 0;
     left: 0;
     right: 0;
+    background-color: #f0f0f0;
+    z-index: 1000;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#mobile-controls {
     display: flex;
     justify-content: center;
     gap: 20px;
     padding: 10px;
-    background-color: #f0f0f0;
-    z-index: 1000;
+    width: 100%;
 }
 
 .mobile-control-btn {
@@ -173,6 +181,16 @@ button {
     background-color: #45a049;
 }
 
+/* Add padding to the game container to prevent overlap with fixed header */
+#game-wrapper {
+    padding-top: 160px; /* Adjust based on header height */
+}
+
+/* Make sure the grid starts below the fixed header */
+#grid {
+    margin-top: 20px;
+}
+
 @media screen and (max-width: 600px) {
     #grid {
         transform: scale(0.8);
@@ -188,9 +206,4 @@ button {
         font-size: 14px;
         min-width: 100px;
     }
-}
-
-/* Remove the padding-bottom from game-wrapper since buttons are no longer fixed */
-#game-wrapper {
-    padding-bottom: 20px;
 }
