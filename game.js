@@ -262,6 +262,7 @@ function initializeGame() {
     points = 0;
     hintsRemaining = 3;
     undoAvailable = true;
+    smallBombAvailable = true;  // Reset small bomb availability at game start
     
     // Remove any existing controls before creating new ones
     const allExistingControls = document.querySelectorAll('#mobile-controls');
@@ -736,8 +737,16 @@ function updateSmallBombButton() {
 }
 
 function useSmallBomb(cell) {
-    if (!gameActive || !smallBombAvailable || totalPoints < 599) {
-        alert('Cannot use Small Bomb: Not enough points or already used');
+    if (!gameActive) {
+        alert('Game is not active');
+        return;
+    }
+    if (!smallBombAvailable) {
+        alert('Small Bomb has already been used in this game');
+        return;
+    }
+    if (totalPoints < 599) {
+        alert('Not enough points! Need 599 points to use Small Bomb');
         return;
     }
 
@@ -747,7 +756,7 @@ function useSmallBomb(cell) {
 
     // Deduct points and mark as used
     totalPoints -= 599;
-    smallBombAvailable = false;
+    smallBombAvailable = false;  // Mark as used for this game
     localStorage.setItem('minesweeperPoints', totalPoints);
 
     // Reveal 3x3 area
