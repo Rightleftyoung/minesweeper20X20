@@ -202,27 +202,63 @@ function createGrid() {
         cell.className = 'cell';
         cell.dataset.index = i;
 
-        // Add double tap detection
-        let lastTap = 0;
-        cell.addEventListener('touchend', (e) => {
+        // Add double tap detection with improved timing
+        let lastTapTime = 0;
+        let tapTimeout;
+
+        cell.addEventListener('touchstart', (e) => {
             e.preventDefault();
             const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            
-            if (tapLength < 500 && tapLength > 0) {
+            const timeSinceLastTap = currentTime - lastTapTime;
+
+            clearTimeout(tapTimeout);
+
+            if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
                 // Double tap detected
                 if (doubleClickEnabled) {
+                    console.log('Double tap detected');
                     handleDoubleClick(cell);
                 }
+            } else {
+                // Wait for potential second tap
+                tapTimeout = setTimeout(() => {
+                    // Single tap handling
+                    const mode = mobileControls.getMode();
+                    console.log('Single tap mode:', mode);
+                    
+                    switch(mode) {
+                        case 'bomb':
+                            if (smallBombUsedThisGame) {
+                                alert('Small Bomb has already been used in this game');
+                                return;
+                            }
+                            if (totalPoints < 599) {
+                                alert('Not enough points! Need 599 points to use Small Bomb');
+                                return;
+                            }
+                            useSmallBomb(cell);
+                            break;
+                        case 'flag':
+                            handleRightClick(e, cell);
+                            break;
+                        case 'reveal':
+                            handleClick(cell);
+                            break;
+                    }
+                }, 300);
             }
-            lastTap = currentTime;
+            lastTapTime = currentTime;
         });
 
+        // Prevent default touch behaviors
+        cell.addEventListener('touchend', (e) => {
+            e.preventDefault();
+        });
+
+        // Keep desktop click handling
         cell.addEventListener('click', (e) => {
             e.preventDefault();
-            
             const mode = mobileControls.getMode();
-            console.log('Current mode:', mode); // Debug log
             
             switch(mode) {
                 case 'bomb':
