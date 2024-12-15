@@ -103,7 +103,7 @@ function createMobileControls() {
     modeToggle.textContent = 'Mode: Reveal';
     modeToggle.className = 'mobile-control-btn';
     
-    // Create quick reveal button (for double-click functionality)
+    // Create quick reveal button
     const quickRevealBtn = document.createElement('button');
     quickRevealBtn.textContent = 'Quick Reveal';
     quickRevealBtn.className = 'mobile-control-btn';
@@ -115,40 +115,45 @@ function createMobileControls() {
     
     let isRevealMode = true;
     let selectedCell = null;
+    let isBombMode = false;
 
     // Mode toggle handler
     modeToggle.addEventListener('click', () => {
-        isRevealMode = !isRevealMode;
-        modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
+        if (!isBombMode) {
+            isRevealMode = !isRevealMode;
+            modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
+        }
     });
 
     // Quick reveal handler
     quickRevealBtn.addEventListener('click', () => {
-        if (selectedCell && doubleClickEnabled) {
+        if (selectedCell && doubleClickEnabled && !isBombMode) {
             handleDoubleClick(selectedCell);
         }
     });
 
     // Small bomb handler
     smallBombBtn.addEventListener('click', () => {
-        if (totalPoints >= 599 && smallBombAvailable && gameActive) {
-            alert('Select a cell to use the Small Bomb');
-            const oldMode = isRevealMode;
-            isRevealMode = 'bomb';
-            
-            const bombHandler = (e) => {
-                const cell = e.target.closest('.cell');
-                if (cell) {
-                    detonateSmallBomb(parseInt(cell.dataset.index));
-                    isRevealMode = oldMode;
-                    document.removeEventListener('click', bombHandler);
-                }
-            };
-            
-            document.addEventListener('click', bombHandler);
-        } else {
-            alert('Not enough points or Small Bomb already used!');
+        if (!gameActive || !smallBombAvailable || totalPoints < 599) {
+            alert('Small Bomb not available: Game not active, already used, or insufficient points');
+            return;
         }
+
+        isBombMode = true;
+        alert('Select a cell to use the Small Bomb');
+        modeToggle.textContent = 'Mode: BOMB';
+
+        const bombHandler = (e) => {
+            const cell = e.target.closest('.cell');
+            if (cell) {
+                detonateSmallBomb(parseInt(cell.dataset.index));
+                isBombMode = false;
+                modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
+                document.removeEventListener('click', bombHandler);
+            }
+        };
+
+        document.addEventListener('click', bombHandler, { once: true });
     });
 
     // Add the buttons to the controls div
@@ -159,9 +164,21 @@ function createMobileControls() {
     // Add the controls to the page
     document.getElementById('game-wrapper').appendChild(controlsDiv);
 
+    // Update small bomb button state
+    function updateSmallBombButton() {
+        smallBombBtn.disabled = !gameActive || !smallBombAvailable || totalPoints < 599;
+        smallBombBtn.textContent = smallBombAvailable ? 
+            'Small Bomb (599 pts)' : 
+            'Small Bomb (Used)';
+    }
+
+    // Initial update
+    updateSmallBombButton();
+
     return {
-        isRevealMode: () => isRevealMode,
-        setSelectedCell: (cell) => { selectedCell = cell; }
+        isRevealMode: () => isBombMode ? 'bomb' : isRevealMode,
+        setSelectedCell: (cell) => { selectedCell = cell; },
+        updateSmallBombButton: updateSmallBombButton
     };
 }
 
@@ -711,6 +728,12 @@ function useSmallBomb() {
 }
 
 function detonateSmallBomb(centerIndex) {
+    if (!gameActive || !smallBombAvailable || totalPoints < 599) {
+        alert('Cannot use Small Bomb: Game not active, already used, or insufficient points');
+        return;
+    }
+
+    // Deduct points and mark as used
     totalPoints -= 599;
     smallBombAvailable = false;
     localStorage.setItem('minesweeperPoints', totalPoints);
@@ -743,6 +766,7 @@ function detonateSmallBomb(centerIndex) {
     }
 
     updateDisplay();
+    updateSmallBombButton();
     alert('Small Bomb detonated! 3x3 area revealed and mines flagged! 💣');
 }
 
