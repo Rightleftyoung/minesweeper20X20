@@ -17,6 +17,24 @@ let smallBombUsedThisGame = false;
 // First, clear any existing content and create basic HTML structure
 document.body.innerHTML = `
     <div id="game-wrapper" style="text-align: center; padding: 20px;">
+        <div id="controls-help" style="
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 14px;
+            z-index: 1000;
+        ">
+            <div style="margin-bottom: 8px">🔍 Tap - Reveal cell</div>
+            <div style="margin-bottom: 8px">🚩 Long press - Flag cell</div>
+            <div style="margin-bottom: 8px">👆 Double tap/Long press on revealed - Quick reveal</div>
+            <div style="margin-bottom: 8px">💣 Small Bomb - Clear 3x3 area</div>
+        </div>
+        
         <div id="controls" style="margin-bottom: 20px;">
             <button id="toggle-double-click">Disable Double Click</button>
             <button id="new-game">New Game</button>
