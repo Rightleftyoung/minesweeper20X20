@@ -202,56 +202,56 @@ function createGrid() {
         cell.className = 'cell';
         cell.dataset.index = i;
 
-        // Simpler double tap implementation
-        let taps = 0;
-        let lastTap = 0;
+        // Mobile touch handling
+        let touchTimeout;
+        let touchStartTime;
 
-        cell.addEventListener('touchstart', (e) => {
+        cell.addEventListener('touchstart', function(e) {
             e.preventDefault();
-            const now = Date.now();
+            touchStartTime = Date.now();
             
-            if (now - lastTap < 300) {
-                // Double tap detected
-                if (doubleClickEnabled && cell.classList.contains('revealed')) {
-                    handleDoubleClick(cell);
-                }
-                taps = 0;
-                lastTap = 0;
-            } else {
-                taps++;
-                lastTap = now;
-                
-                // Handle single tap after a delay
-                setTimeout(() => {
-                    if (taps === 1) {
-                        const mode = mobileControls.getMode();
-                        switch(mode) {
-                            case 'bomb':
-                                if (smallBombUsedThisGame) {
-                                    alert('Small Bomb has already been used in this game');
-                                    return;
-                                }
-                                if (totalPoints < 599) {
-                                    alert('Not enough points! Need 599 points to use Small Bomb');
-                                    return;
-                                }
-                                useSmallBomb(cell);
-                                break;
-                            case 'flag':
-                                handleRightClick(e, cell);
-                                break;
-                            case 'reveal':
-                                handleClick(cell);
-                                break;
+            touchTimeout = setTimeout(() => {
+                // Long press - handle as flag
+                handleRightClick(e, cell);
+            }, 500);
+        });
+
+        cell.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            clearTimeout(touchTimeout);
+            
+            const touchDuration = Date.now() - touchStartTime;
+            if (touchDuration < 500) {
+                // Short touch - handle as normal click
+                const mode = mobileControls.getMode();
+                switch(mode) {
+                    case 'bomb':
+                        if (smallBombUsedThisGame) {
+                            alert('Small Bomb has already been used in this game');
+                            return;
                         }
-                    }
-                    taps = 0;
-                }, 300);
+                        if (totalPoints < 599) {
+                            alert('Not enough points! Need 599 points to use Small Bomb');
+                            return;
+                        }
+                        useSmallBomb(cell);
+                        break;
+                    case 'flag':
+                        handleRightClick(e, cell);
+                        break;
+                    case 'reveal':
+                        handleClick(cell);
+                        break;
+                }
             }
         });
 
-        cell.addEventListener('touchend', (e) => {
+        // Double tap handling
+        cell.addEventListener('dblclick', function(e) {
             e.preventDefault();
+            if (doubleClickEnabled && cell.classList.contains('revealed')) {
+                handleDoubleClick(cell);
+            }
         });
 
         // Keep desktop click handling
