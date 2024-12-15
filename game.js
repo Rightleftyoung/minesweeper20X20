@@ -98,11 +98,9 @@ function createMobileControls() {
 
     const controlsDiv = document.createElement('div');
     controlsDiv.id = 'mobile-controls';
-    controlsDiv.style.marginTop = '20px';
-    controlsDiv.style.position = 'fixed';  
-    controlsDiv.style.bottom = '20px';     
-    controlsDiv.style.left = '0';          
-    controlsDiv.style.right = '0';         
+    
+    // Remove fixed positioning styles
+    controlsDiv.style.marginTop = '10px';  // Reduced margin
     controlsDiv.style.backgroundColor = '#f0f0f0';
     controlsDiv.style.padding = '10px';    
 
@@ -137,8 +135,13 @@ function createMobileControls() {
     controlsDiv.appendChild(flagBtn);
     controlsDiv.appendChild(revealBtn);
 
-    // Add controls to page
-    document.getElementById('game-wrapper').appendChild(controlsDiv);
+    // Insert controls after the timer
+    const timerDisplay = document.getElementById('timer');
+    if (timerDisplay) {
+        timerDisplay.parentNode.insertBefore(controlsDiv, timerDisplay.nextSibling);
+    } else {
+        document.getElementById('game-wrapper').appendChild(controlsDiv);
+    }
 
     return {
         getMode: () => currentMode,
