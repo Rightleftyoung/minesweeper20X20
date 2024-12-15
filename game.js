@@ -212,11 +212,11 @@ function createGrid() {
             
             pressTimer = setTimeout(function() {
                 if (isTouching) {
-                    if (cell.classList.contains('revealed')) {
-                        // Long press on revealed cell - do area reveal
+                    if (cell.classList.contains('revealed') && doubleClickEnabled) {
+                        // Long press on revealed cell - do area reveal only if double click is enabled
                         console.log('Long press on revealed cell');
                         handleDoubleClick(cell);
-                    } else {
+                    } else if (!cell.classList.contains('revealed')) {
                         // Long press on unrevealed cell - flag
                         handleRightClick(e, cell);
                     }
@@ -232,8 +232,8 @@ function createGrid() {
             const currentTime = new Date().getTime();
             const tapLength = currentTime - lastTap;
 
-            if (tapLength < 300 && tapLength > 0) {
-                // Double tap detected
+            if (tapLength < 300 && tapLength > 0 && doubleClickEnabled) {
+                // Double tap detected - only if double click is enabled
                 if (cell.classList.contains('revealed')) {
                     console.log('Double tap on revealed cell');
                     handleDoubleClick(cell);
