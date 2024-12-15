@@ -149,13 +149,13 @@ function createMobileControls() {
     document.getElementById('game-wrapper').appendChild(controlsDiv);
 
     return {
-        isRevealMode: () => {
+        getMode: () => {
             if (isBombMode) {
                 isBombMode = false;
                 modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
                 return 'bomb';
             }
-            return isRevealMode;
+            return isRevealMode ? 'reveal' : 'flag';
         },
         setSelectedCell: (cell) => { selectedCell = cell; }
     };
@@ -185,13 +185,17 @@ function createGrid() {
             e.preventDefault();
             mobileControls.setSelectedCell(cell);
             
-            const mode = mobileControls.isRevealMode();
-            if (mode === 'bomb') {
-                useSmallBomb(cell);
-            } else if (mode === true) {
-                handleClick(cell);
-            } else {
-                handleRightClick(e, cell);
+            const mode = mobileControls.getMode();
+            switch(mode) {
+                case 'bomb':
+                    useSmallBomb(cell);
+                    break;
+                case 'flag':
+                    handleRightClick(e, cell);
+                    break;
+                case 'reveal':
+                    handleClick(cell);
+                    break;
             }
         });
 
@@ -324,16 +328,21 @@ function handleRightClick(e, cell) {
     e.preventDefault();
     if (!gameActive) return;
     
-    if (!cell.classList.contains('revealed')) {
-        if (!cell.classList.contains('flagged') && flagsRemaining > 0) {
+    if (cell.classList.contains('revealed')) return;
+    
+    if (cell.classList.contains('flagged')) {
+        cell.classList.remove('flagged');
+        flagsRemaining++;
+    } else {
+        if (flagsRemaining > 0) {
             cell.classList.add('flagged');
             flagsRemaining--;
-        } else if (cell.classList.contains('flagged')) {
-            cell.classList.remove('flagged');
-            flagsRemaining++;
+        } else {
+            alert('No flags remaining!');
         }
-        updateDisplay();
     }
+    
+    updateDisplay();
 }
 
 function getAdjacentMines(index) {
