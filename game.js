@@ -197,6 +197,8 @@ function createGrid() {
             mobileControls.setSelectedCell(cell);
             
             const mode = mobileControls.getMode();
+            console.log('Current mode:', mode); // Debug log
+            
             switch(mode) {
                 case 'bomb':
                     useSmallBomb(cell);
