@@ -90,11 +90,9 @@ document.head.appendChild(styleSheet);
 
 // Add this function to create mobile controls
 function createMobileControls() {
-    // First, remove any existing mobile controls
-    const existingControls = document.getElementById('mobile-controls');
-    if (existingControls) {
-        existingControls.remove();
-    }
+    // Remove ALL existing mobile controls
+    const allExistingControls = document.querySelectorAll('#mobile-controls');
+    allExistingControls.forEach(control => control.remove());
 
     const controlsDiv = document.createElement('div');
     controlsDiv.id = 'mobile-controls';
@@ -130,17 +128,10 @@ function createMobileControls() {
     controlsDiv.appendChild(flagBtn);
     controlsDiv.appendChild(revealBtn);
 
-    // Create a container for timer and controls
-    const headerContainer = document.createElement('div');
-    headerContainer.id = 'header-container';
-    
-    // Move timer into header container
+    // Insert controls directly after the timer
     const timerDisplay = document.getElementById('timer');
-    if (timerDisplay) {
-        const timerParent = timerDisplay.parentNode;
-        headerContainer.appendChild(timerDisplay);
-        headerContainer.appendChild(controlsDiv);
-        timerParent.appendChild(headerContainer);
+    if (timerDisplay && timerDisplay.parentNode) {
+        timerDisplay.parentNode.insertBefore(controlsDiv, timerDisplay.nextSibling);
     }
 
     return {
@@ -219,21 +210,28 @@ function setupDoubleClickToggle() {
 }
 
 function initializeGame() {
-    points = 0;
-    timer = 0;
+    gameActive = true;
+    mines.clear();
     flagsRemaining = MINE_COUNT;
+    points = 0;
     hintsRemaining = 3;
     undoAvailable = true;
-    smallBombAvailable = true;
-    mines.clear();
-    gameActive = true;
-    updateDisplay();
+    
+    // Remove any existing controls before creating new ones
+    const allExistingControls = document.querySelectorAll('#mobile-controls');
+    allExistingControls.forEach(control => control.remove());
+    
     createGrid();
-    placeMines();
-    startTimer();
-    updateHintButton();
-    updateUndoButton();
-    updateSmallBombButton();
+    updateDisplay();
+    
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+    timer = 0;
+    timerInterval = setInterval(() => {
+        timer++;
+        updateDisplay();
+    }, 1000);
 }
 
 function placeMines() {
