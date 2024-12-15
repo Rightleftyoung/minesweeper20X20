@@ -130,6 +130,7 @@ function createMobileControls() {
     bombBtn.style.borderRadius = '5px';
 
     let currentMode = 'reveal';
+    let selectedCell = null;
 
     // Flag button handler
     flagBtn.addEventListener('click', () => {
@@ -149,6 +150,10 @@ function createMobileControls() {
 
     // Bomb button handler
     bombBtn.addEventListener('click', () => {
+        if (!smallBombAvailable || totalPoints < 599) {
+            alert('Cannot use Small Bomb: Not enough points or already used');
+            return;
+        }
         currentMode = 'bomb';
         bombBtn.style.backgroundColor = '#45a049';
         flagBtn.style.backgroundColor = '#4CAF50';
@@ -724,6 +729,8 @@ function updateSmallBombButton() {
 }
 
 function useSmallBomb(cell) {
+    console.log('Small bomb function called'); // Debug log
+    
     if (!gameActive || !smallBombAvailable || totalPoints < 599) {
         alert('Cannot use Small Bomb: Not enough points or already used');
         return;
@@ -763,6 +770,7 @@ function useSmallBomb(cell) {
     }
 
     updateDisplay();
+    updateSmallBombButton();
     alert('Small Bomb used! 3x3 area revealed and mines flagged! (-599 points)');
 }
 
