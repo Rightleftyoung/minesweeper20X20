@@ -673,7 +673,15 @@ function setupSmallBombButton() {
     const controls = document.getElementById('controls');
     controls.appendChild(smallBombButton);
     
-    smallBombButton.addEventListener('click', useSmallBomb);
+    smallBombButton.addEventListener('click', () => {
+        // Change mode to 'bomb' when small bomb button is clicked
+        const mobileControls = document.querySelector('#mobile-controls');
+        if (mobileControls) {
+            const mode = mobileControls.getMode();
+            if (mode) mode = 'bomb';
+        }
+    });
+    
     updateSmallBombButton();
 }
 
