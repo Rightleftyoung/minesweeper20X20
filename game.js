@@ -138,6 +138,7 @@ function createMobileControls() {
         flagBtn.style.backgroundColor = '#45a049';
         revealBtn.style.backgroundColor = '#4CAF50';
         bombBtn.style.backgroundColor = '#4CAF50';
+        console.log('Mode switched to: flag');
     });
 
     // Reveal button handler
@@ -146,6 +147,7 @@ function createMobileControls() {
         revealBtn.style.backgroundColor = '#45a049';
         flagBtn.style.backgroundColor = '#4CAF50';
         bombBtn.style.backgroundColor = '#4CAF50';
+        console.log('Mode switched to: reveal');
     });
 
     // Bomb button handler
