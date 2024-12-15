@@ -577,8 +577,8 @@ function endGame(won) {
 
 function handleDoubleClick(cell) {
     console.log('Double click/tap function called');  // Debug log
-    if (!gameActive || !cell.classList.contains('revealed')) {
-        console.log('Cell not eligible for double click');  // Debug log
+    if (!gameActive || !doubleClickEnabled || !cell.classList.contains('revealed')) {
+        console.log('Cell not eligible for double click. doubleClickEnabled:', doubleClickEnabled);  // Debug log
         return;
     }
     
