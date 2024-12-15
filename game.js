@@ -204,6 +204,7 @@ function createGrid() {
 
         let pressTimer;
         let isTouching = false;
+        let lastTap = 0;
 
         cell.addEventListener('touchstart', function(e) {
             e.preventDefault();
@@ -228,8 +229,17 @@ function createGrid() {
             isTouching = false;
             clearTimeout(pressTimer);
 
-            // Only handle single tap if the press timer wasn't triggered
-            if (pressTimer) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+
+            if (tapLength < 300 && tapLength > 0) {
+                // Double tap detected
+                if (cell.classList.contains('revealed')) {
+                    console.log('Double tap on revealed cell');
+                    handleDoubleClick(cell);
+                }
+            } else {
+                // Single tap handling
                 const mode = mobileControls.getMode();
                 switch(mode) {
                     case 'bomb':
@@ -251,6 +261,7 @@ function createGrid() {
                         break;
                 }
             }
+            lastTap = currentTime;
         });
 
         cell.addEventListener('touchcancel', function(e) {
