@@ -12,6 +12,7 @@ let totalPoints = localStorage.getItem('minesweeperPoints') ? parseInt(localStor
 let hintsRemaining = 3;
 let undoAvailable = true;
 let smallBombAvailable = true;
+let smallBombUsedThisGame = false;
 
 // First, clear any existing content and create basic HTML structure
 document.body.innerHTML = `
@@ -152,8 +153,8 @@ function createMobileControls() {
 
     // Bomb button handler
     bombBtn.addEventListener('click', () => {
-        if (!smallBombAvailable) {
-            alert('Small Bomb has already been used');
+        if (smallBombUsedThisGame) {
+            alert('Small Bomb has already been used in this game');
             return;
         }
         if (totalPoints < 599) {
@@ -262,7 +263,8 @@ function initializeGame() {
     points = 0;
     hintsRemaining = 3;
     undoAvailable = true;
-    smallBombAvailable = true;  // Reset small bomb availability at game start
+    smallBombAvailable = true;  // Reset small bomb availability
+    smallBombUsedThisGame = false;  // Reset the per-game usage flag
     
     // Remove any existing controls before creating new ones
     const allExistingControls = document.querySelectorAll('#mobile-controls');
@@ -722,17 +724,17 @@ function setupSmallBombButton() {
 }
 
 function updateSmallBombButton() {
-    const smallBombButton = document.getElementById('small-bomb-button');
-    if (!smallBombButton) return;
+    const bombBtn = document.querySelector('.mobile-control-btn:nth-child(3)');
+    if (!bombBtn) return;
     
-    if (smallBombAvailable) {
-        smallBombButton.textContent = 'Small Bomb (599 pts)';
-        smallBombButton.disabled = totalPoints < 599 || !gameActive;
-        smallBombButton.style.opacity = totalPoints < 599 ? '0.6' : '1';
+    if (!smallBombUsedThisGame) {
+        bombBtn.textContent = '💣 Small Bomb';
+        bombBtn.disabled = totalPoints < 599 || !gameActive;
+        bombBtn.style.opacity = totalPoints < 599 ? '0.6' : '1';
     } else {
-        smallBombButton.textContent = 'Small Bomb (Used)';
-        smallBombButton.disabled = true;
-        smallBombButton.style.opacity = '0.6';
+        bombBtn.textContent = '💣 Used';
+        bombBtn.disabled = true;
+        bombBtn.style.opacity = '0.6';
     }
 }
 
@@ -741,7 +743,7 @@ function useSmallBomb(cell) {
         alert('Game is not active');
         return;
     }
-    if (!smallBombAvailable) {
+    if (smallBombUsedThisGame) {
         alert('Small Bomb has already been used in this game');
         return;
     }
@@ -756,7 +758,7 @@ function useSmallBomb(cell) {
 
     // Deduct points and mark as used
     totalPoints -= 599;
-    smallBombAvailable = false;  // Mark as used for this game
+    smallBombUsedThisGame = true;  // Mark as used for this game
     localStorage.setItem('minesweeperPoints', totalPoints);
 
     // Reveal 3x3 area
