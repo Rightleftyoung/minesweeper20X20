@@ -215,6 +215,16 @@ function createGrid() {
 
     const mobileControls = createMobileControls();
 
+    // Track mouse buttons globally
+    let leftMouseDown = false;
+    let rightMouseDown = false;
+
+    // Add global mouse up listener
+    document.addEventListener('mouseup', function(e) {
+        if (e.button === 0) leftMouseDown = false;  // Left click released
+        if (e.button === 2) rightMouseDown = false; // Right click released
+    });
+
     for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
@@ -223,29 +233,20 @@ function createGrid() {
         let pressTimer;
         let isTouching = false;
         let lastTap = 0;
-        
-        // Track mouse buttons
-        let leftPressed = false;
-        let rightPressed = false;
 
         // Mouse down handler
         cell.addEventListener('mousedown', function(e) {
-            if (e.button === 0) leftPressed = true;  // Left click
-            if (e.button === 2) rightPressed = true; // Right click
-            
-            // If both buttons are pressed and double click is enabled
-            if (leftPressed && rightPressed && doubleClickEnabled) {
+            if (e.button === 0) leftMouseDown = true;   // Left click
+            if (e.button === 2) rightMouseDown = true;  // Right click
+
+            // Check if both buttons are pressed
+            if (leftMouseDown && rightMouseDown && doubleClickEnabled) {
+                console.log('Both buttons pressed');
                 if (cell.classList.contains('revealed')) {
-                    console.log('Both buttons pressed on revealed cell');
+                    console.log('Triggering double click on revealed cell');
                     handleDoubleClick(cell);
                 }
             }
-        });
-
-        // Mouse up handler
-        cell.addEventListener('mouseup', function(e) {
-            if (e.button === 0) leftPressed = false;  // Left click released
-            if (e.button === 2) rightPressed = false; // Right click released
         });
 
         // Mobile touch handlers
@@ -255,7 +256,11 @@ function createGrid() {
             
             pressTimer = setTimeout(() => {
                 if (isTouching) {
-                    handleLongPress(e);
+                    if (cell.classList.contains('revealed') && doubleClickEnabled) {
+                        handleDoubleClick(cell);
+                    } else {
+                        handleRightClick(e, cell);
+                    }
                 }
             }, 500);
         });
@@ -270,7 +275,6 @@ function createGrid() {
 
             if (tapLength < 300 && tapLength > 0 && doubleClickEnabled) {
                 if (cell.classList.contains('revealed')) {
-                    console.log('Double tap on revealed cell, double click enabled:', doubleClickEnabled);
                     handleDoubleClick(cell);
                 }
             } else {
@@ -298,10 +302,27 @@ function createGrid() {
             lastTap = currentTime;
         });
 
-        cell.addEventListener('touchcancel', function(e) {
-            e.preventDefault();
-            isTouching = false;
-            clearTimeout(pressTimer);
+        cell.addEventListener('click', (e) => {
+            const mode = mobileControls.getMode();
+            switch(mode) {
+                case 'bomb':
+                    if (smallBombUsedThisGame) {
+                        alert('Small Bomb has already been used in this game');
+                        return;
+                    }
+                    if (totalPoints < 599) {
+                        alert('Not enough points! Need 599 points to use Small Bomb');
+                        return;
+                    }
+                    useSmallBomb(cell);
+                    break;
+                case 'flag':
+                    handleRightClick(e, cell);
+                    break;
+                case 'reveal':
+                    handleClick(cell);
+                    break;
+            }
         });
 
         cell.addEventListener('contextmenu', (e) => {
