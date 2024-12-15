@@ -233,7 +233,9 @@ function initializeGame() {
     allExistingControls.forEach(control => control.remove());
     
     createGrid();
-    placeMines();
+    console.log('About to place mines...');
+    placeMines();  // Place mines
+    console.log(`After placing mines. Mine count: ${mines.size}`);
     updateDisplay();
     
     if (timerInterval) {
@@ -247,10 +249,14 @@ function initializeGame() {
 }
 
 function placeMines() {
+    mines.clear(); // Clear existing mines first
+    console.log('Placing mines...');
     while (mines.size < MINE_COUNT) {
         const index = Math.floor(Math.random() * (GRID_SIZE * GRID_SIZE));
         mines.add(index);
+        console.log(`Added mine at index ${index}. Total mines: ${mines.size}`);
     }
+    console.log('Final mine positions:', Array.from(mines));
 }
 
 function handleClick(cell) {
