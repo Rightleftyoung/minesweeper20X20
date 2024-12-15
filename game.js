@@ -185,7 +185,6 @@ function createMobileControls() {
     };
 }
 
-// Modify createGrid to use the mobile controls
 function createGrid() {
     const gridElement = document.getElementById('grid');
     gridElement.style.display = 'grid';
@@ -207,7 +206,6 @@ function createGrid() {
 
         cell.addEventListener('click', (e) => {
             e.preventDefault();
-            mobileControls.setSelectedCell(cell);
             
             const mode = mobileControls.getMode();
             console.log('Current mode:', mode); // Debug log
@@ -216,6 +214,10 @@ function createGrid() {
                 case 'bomb':
                     if (smallBombUsedThisGame) {
                         alert('Small Bomb has already been used in this game');
+                        return;
+                    }
+                    if (totalPoints < 599) {
+                        alert('Not enough points! Need 599 points to use Small Bomb');
                         return;
                     }
                     useSmallBomb(cell);
