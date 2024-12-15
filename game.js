@@ -206,20 +206,23 @@ function createGrid() {
         let isTouching = false;
         let lastTap = 0;
 
+        function handleLongPress(e) {
+            if (!doubleClickEnabled) return; // Exit if double click is disabled
+            if (cell.classList.contains('revealed')) {
+                console.log('Long press on revealed cell, double click enabled:', doubleClickEnabled);
+                handleDoubleClick(cell);
+            } else {
+                handleRightClick(e, cell);
+            }
+        }
+
         cell.addEventListener('touchstart', function(e) {
             e.preventDefault();
             isTouching = true;
             
-            pressTimer = setTimeout(function() {
+            pressTimer = setTimeout(() => {
                 if (isTouching) {
-                    if (cell.classList.contains('revealed') && doubleClickEnabled) {
-                        // Long press on revealed cell - do area reveal only if double click is enabled
-                        console.log('Long press on revealed cell');
-                        handleDoubleClick(cell);
-                    } else if (!cell.classList.contains('revealed')) {
-                        // Long press on unrevealed cell - flag
-                        handleRightClick(e, cell);
-                    }
+                    handleLongPress(e);
                 }
             }, 500);
         });
@@ -233,13 +236,11 @@ function createGrid() {
             const tapLength = currentTime - lastTap;
 
             if (tapLength < 300 && tapLength > 0 && doubleClickEnabled) {
-                // Double tap detected - only if double click is enabled
                 if (cell.classList.contains('revealed')) {
-                    console.log('Double tap on revealed cell');
+                    console.log('Double tap on revealed cell, double click enabled:', doubleClickEnabled);
                     handleDoubleClick(cell);
                 }
             } else {
-                // Single tap handling
                 const mode = mobileControls.getMode();
                 switch(mode) {
                     case 'bomb':
@@ -270,7 +271,6 @@ function createGrid() {
             clearTimeout(pressTimer);
         });
 
-        // Keep desktop click handling
         cell.addEventListener('click', (e) => {
             e.preventDefault();
             const mode = mobileControls.getMode();
@@ -296,7 +296,6 @@ function createGrid() {
             }
         });
 
-        // Keep desktop right-click
         cell.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             handleRightClick(e, cell);
