@@ -224,8 +224,17 @@ function createGrid() {
         let isTouching = false;
         let lastTap = 0;
 
+        // Add desktop double-click handler
+        cell.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            if (doubleClickEnabled && cell.classList.contains('revealed')) {
+                console.log('Desktop double-click detected');
+                handleDoubleClick(cell);
+            }
+        });
+
         function handleLongPress(e) {
-            if (!doubleClickEnabled) return; // Exit if double click is disabled
+            if (!doubleClickEnabled) return;
             if (cell.classList.contains('revealed')) {
                 console.log('Long press on revealed cell, double click enabled:', doubleClickEnabled);
                 handleDoubleClick(cell);
@@ -234,6 +243,7 @@ function createGrid() {
             }
         }
 
+        // Mobile touch handlers
         cell.addEventListener('touchstart', function(e) {
             e.preventDefault();
             isTouching = true;
