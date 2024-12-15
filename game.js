@@ -128,10 +128,10 @@ function createMobileControls() {
     controlsDiv.appendChild(flagBtn);
     controlsDiv.appendChild(revealBtn);
 
-    // Insert controls directly after the timer
-    const timerDisplay = document.getElementById('timer');
-    if (timerDisplay && timerDisplay.parentNode) {
-        timerDisplay.parentNode.insertBefore(controlsDiv, timerDisplay.nextSibling);
+    // Find the menu div and insert controls
+    const menuDiv = document.querySelector('.menu');
+    if (menuDiv) {
+        menuDiv.appendChild(controlsDiv);
     }
 
     return {

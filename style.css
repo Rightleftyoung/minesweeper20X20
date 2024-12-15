@@ -203,3 +203,43 @@ button {
         min-width: 100px;
     }
 }
+
+.menu {
+    position: static;
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+#mobile-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+    margin: 10px auto;
+}
+
+.mobile-control-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    min-width: 120px;
+    margin: 0 5px;
+}
+
+.mobile-control-btn:active {
+    background-color: #45a049;
+}
+
+#grid {
+    margin-top: 20px;
+}
+
+/* Remove any fixed positioning */
+* {
+    position: static !important;
+}
