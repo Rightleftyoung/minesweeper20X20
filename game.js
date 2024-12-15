@@ -119,6 +119,16 @@ function createMobileControls() {
     revealBtn.style.border = 'none';
     revealBtn.style.borderRadius = '5px';
 
+    const bombBtn = document.createElement('button');
+    bombBtn.textContent = '💣 Small Bomb';
+    bombBtn.className = 'mobile-control-btn';
+    bombBtn.style.padding = '10px 20px';
+    bombBtn.style.margin = '0 5px';
+    bombBtn.style.backgroundColor = '#4CAF50';
+    bombBtn.style.color = 'white';
+    bombBtn.style.border = 'none';
+    bombBtn.style.borderRadius = '5px';
+
     let currentMode = 'reveal';
 
     // Flag button handler
@@ -126,6 +136,7 @@ function createMobileControls() {
         currentMode = 'flag';
         flagBtn.style.backgroundColor = '#45a049';
         revealBtn.style.backgroundColor = '#4CAF50';
+        bombBtn.style.backgroundColor = '#4CAF50';
     });
 
     // Reveal button handler
@@ -133,11 +144,21 @@ function createMobileControls() {
         currentMode = 'reveal';
         revealBtn.style.backgroundColor = '#45a049';
         flagBtn.style.backgroundColor = '#4CAF50';
+        bombBtn.style.backgroundColor = '#4CAF50';
     });
 
-    // Add ONLY these two buttons
+    // Bomb button handler
+    bombBtn.addEventListener('click', () => {
+        currentMode = 'bomb';
+        bombBtn.style.backgroundColor = '#45a049';
+        flagBtn.style.backgroundColor = '#4CAF50';
+        revealBtn.style.backgroundColor = '#4CAF50';
+    });
+
+    // Add all three buttons
     controlsDiv.appendChild(flagBtn);
     controlsDiv.appendChild(revealBtn);
+    controlsDiv.appendChild(bombBtn);
 
     // Add controls to the game wrapper at the top
     const gameWrapper = document.getElementById('game-wrapper');
