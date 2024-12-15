@@ -99,11 +99,6 @@ function createMobileControls() {
     const controlsDiv = document.createElement('div');
     controlsDiv.id = 'mobile-controls';
     
-    // Remove fixed positioning styles
-    controlsDiv.style.marginTop = '10px';  // Reduced margin
-    controlsDiv.style.backgroundColor = '#f0f0f0';
-    controlsDiv.style.padding = '10px';    
-
     // Create ONLY Flag and Reveal buttons
     const flagBtn = document.createElement('button');
     flagBtn.textContent = 'Flag';

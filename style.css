@@ -28,6 +28,7 @@ body {
     margin: 0 auto;
     width: fit-content;
     touch-action: pan-x pan-y;
+    margin-top: 80px;
 }
 
 .cell {
@@ -144,13 +145,16 @@ button {
 }
 
 #mobile-controls {
+    position: fixed;
+    top: 120px;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: center;
     gap: 20px;
     padding: 10px;
     background-color: #f0f0f0;
-    margin: 10px auto;
-    width: fit-content;
+    z-index: 1000;
 }
 
 .mobile-control-btn {
