@@ -106,8 +106,29 @@ function createGrid() {
         cell.className = 'cell';
         cell.dataset.index = i;
         
+        // Single click/tap handler
         cell.addEventListener('click', () => handleClick(cell));
+        
+        // Right click handler (desktop)
         cell.addEventListener('contextmenu', (e) => handleRightClick(e, cell));
+        
+        // Double tap handler (mobile)
+        let lastTap = 0;
+        cell.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            if (tapLength < 500 && tapLength > 0) {
+                // Double tap detected
+                e.preventDefault();
+                if (doubleClickEnabled) {
+                    handleDoubleClick(cell);
+                }
+            }
+            lastTap = currentTime;
+        });
+
+        // Double click handler (desktop)
         cell.addEventListener('dblclick', (e) => {
             if (doubleClickEnabled) {
                 e.preventDefault();
@@ -369,9 +390,7 @@ function endGame(won) {
 }
 
 function handleDoubleClick(cell) {
-    console.log('Processing double click');
     if (!gameActive || !cell.classList.contains('revealed')) {
-        console.log('Cell not eligible for double click');
         return;
     }
     
@@ -383,6 +402,7 @@ function handleDoubleClick(cell) {
     let flagCount = 0;
     let adjacentCells = [];
     
+    // Check all 8 adjacent cells
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
             const newRow = row + i;
@@ -390,22 +410,21 @@ function handleDoubleClick(cell) {
             if (newRow >= 0 && newRow < GRID_SIZE && newCol >= 0 && newCol < GRID_SIZE) {
                 const newIndex = newRow * GRID_SIZE + newCol;
                 const adjacentCell = grid[newIndex];
+                
                 if (adjacentCell.classList.contains('flagged')) {
                     flagCount++;
-                }
-                if (!adjacentCell.classList.contains('revealed') && 
-                    !adjacentCell.classList.contains('flagged')) {
+                } else if (!adjacentCell.classList.contains('revealed')) {
                     adjacentCells.push(adjacentCell);
                 }
             }
         }
     }
     
+    // Get the number in the cell
     const adjacentMines = getAdjacentMines(index);
-    console.log('Flags:', flagCount, 'Mines:', adjacentMines);
     
+    // If flags match the number, reveal all unflagged adjacent cells
     if (flagCount === adjacentMines) {
-        console.log('Revealing adjacent cells');
         adjacentCells.forEach(adjacentCell => {
             handleClick(adjacentCell);
         });
