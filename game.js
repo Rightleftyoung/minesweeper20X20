@@ -131,7 +131,6 @@ function createMobileControls() {
     bombBtn.style.borderRadius = '5px';
 
     let currentMode = 'reveal';
-    let selectedCell = null;
 
     // Flag button handler
     flagBtn.addEventListener('click', () => {
@@ -180,8 +179,7 @@ function createMobileControls() {
     }
 
     return {
-        getMode: () => currentMode,
-        setSelectedCell: (cell) => { selectedCell = cell; }
+        getMode: () => currentMode
     };
 }
 
