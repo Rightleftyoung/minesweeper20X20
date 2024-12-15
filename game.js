@@ -93,29 +93,25 @@ function createMobileControls() {
     const controlsDiv = document.createElement('div');
     controlsDiv.id = 'mobile-controls';
     controlsDiv.style.marginTop = '20px';
-    controlsDiv.style.display = 'flex';
-    controlsDiv.style.justifyContent = 'center';
-    controlsDiv.style.gap = '10px';
-    controlsDiv.style.flexWrap = 'wrap';
 
-    // Create mode toggle button
+    // Mode toggle button
     const modeToggle = document.createElement('button');
     modeToggle.textContent = 'Mode: Reveal';
     modeToggle.className = 'mobile-control-btn';
-    
-    // Create quick reveal button
+
+    // Quick reveal button
     const quickRevealBtn = document.createElement('button');
     quickRevealBtn.textContent = 'Quick Reveal';
     quickRevealBtn.className = 'mobile-control-btn';
-    
-    // Create small bomb button
+
+    // Small bomb button
     const smallBombBtn = document.createElement('button');
     smallBombBtn.textContent = 'Small Bomb (599 pts)';
     smallBombBtn.className = 'mobile-control-btn';
-    
+
     let isRevealMode = true;
-    let selectedCell = null;
     let isBombMode = false;
+    let selectedCell = null;
 
     // Mode toggle handler
     modeToggle.addEventListener('click', () => {
@@ -127,7 +123,7 @@ function createMobileControls() {
 
     // Quick reveal handler
     quickRevealBtn.addEventListener('click', () => {
-        if (selectedCell && doubleClickEnabled && !isBombMode) {
+        if (selectedCell && doubleClickEnabled) {
             handleDoubleClick(selectedCell);
         }
     });
@@ -140,45 +136,28 @@ function createMobileControls() {
         }
 
         isBombMode = true;
-        alert('Select a cell to use the Small Bomb');
         modeToggle.textContent = 'Mode: BOMB';
-
-        const bombHandler = (e) => {
-            const cell = e.target.closest('.cell');
-            if (cell) {
-                detonateSmallBomb(parseInt(cell.dataset.index));
-                isBombMode = false;
-                modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
-                document.removeEventListener('click', bombHandler);
-            }
-        };
-
-        document.addEventListener('click', bombHandler, { once: true });
+        alert('Select a cell to use the Small Bomb');
     });
 
-    // Add the buttons to the controls div
+    // Add buttons to controls
     controlsDiv.appendChild(modeToggle);
     controlsDiv.appendChild(quickRevealBtn);
     controlsDiv.appendChild(smallBombBtn);
 
-    // Add the controls to the page
+    // Add controls to page
     document.getElementById('game-wrapper').appendChild(controlsDiv);
 
-    // Update small bomb button state
-    function updateSmallBombButton() {
-        smallBombBtn.disabled = !gameActive || !smallBombAvailable || totalPoints < 599;
-        smallBombBtn.textContent = smallBombAvailable ? 
-            'Small Bomb (599 pts)' : 
-            'Small Bomb (Used)';
-    }
-
-    // Initial update
-    updateSmallBombButton();
-
     return {
-        isRevealMode: () => isBombMode ? 'bomb' : isRevealMode,
-        setSelectedCell: (cell) => { selectedCell = cell; },
-        updateSmallBombButton: updateSmallBombButton
+        isRevealMode: () => {
+            if (isBombMode) {
+                isBombMode = false;
+                modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
+                return 'bomb';
+            }
+            return isRevealMode;
+        },
+        setSelectedCell: (cell) => { selectedCell = cell; }
     };
 }
 
@@ -202,14 +181,16 @@ function createGrid() {
         cell.className = 'cell';
         cell.dataset.index = i;
 
-        // Single touch/click handler
         cell.addEventListener('click', (e) => {
             e.preventDefault();
             mobileControls.setSelectedCell(cell);
             
-            if (mobileControls.isRevealMode() === true) {
+            const mode = mobileControls.isRevealMode();
+            if (mode === 'bomb') {
+                useSmallBomb(cell);
+            } else if (mode === true) {
                 handleClick(cell);
-            } else if (mobileControls.isRevealMode() === false) {
+            } else {
                 handleRightClick(e, cell);
             }
         });
@@ -698,76 +679,47 @@ function updateSmallBombButton() {
     }
 }
 
-function useSmallBomb() {
-    if (!gameActive || totalPoints < 599 || !smallBombAvailable) return;
-
-    const useConfirm = confirm('Would you like to use the Small Bomb for 599 points? It will reveal a 3x3 area and flag mines. (Can only be used once per game)');
-    if (!useConfirm) return;
-
-    // Enable bomb placement mode
-    const gridElement = document.getElementById('grid');
-    const originalCursor = gridElement.style.cursor;
-    gridElement.style.cursor = 'crosshair';
-
-    const placeBombHandler = function(e) {
-        const cell = e.target;
-        if (!cell.classList.contains('cell')) return;
-
-        // Remove the event listener
-        gridElement.removeEventListener('click', placeBombHandler);
-        gridElement.style.cursor = originalCursor;
-
-        // Use the bomb
-        const index = parseInt(cell.dataset.index);
-        detonateSmallBomb(index);
-    };
-
-    // Add one-time click handler for bomb placement
-    gridElement.addEventListener('click', placeBombHandler);
-    alert('Click where you want to drop the small bomb!');
-}
-
-function detonateSmallBomb(centerIndex) {
+function useSmallBomb(cell) {
     if (!gameActive || !smallBombAvailable || totalPoints < 599) {
-        alert('Cannot use Small Bomb: Game not active, already used, or insufficient points');
+        alert('Cannot use Small Bomb: Not enough points or already used');
         return;
     }
+
+    const index = parseInt(cell.dataset.index);
+    const row = Math.floor(index / GRID_SIZE);
+    const col = index % GRID_SIZE;
 
     // Deduct points and mark as used
     totalPoints -= 599;
     smallBombAvailable = false;
     localStorage.setItem('minesweeperPoints', totalPoints);
 
-    const centerRow = Math.floor(centerIndex / GRID_SIZE);
-    const centerCol = centerIndex % GRID_SIZE;
-
-    // Reveal/flag 3x3 area
+    // Reveal 3x3 area
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
-            const newRow = centerRow + i;
-            const newCol = centerCol + j;
-
+            const newRow = row + i;
+            const newCol = col + j;
+            
             if (newRow >= 0 && newRow < GRID_SIZE && newCol >= 0 && newCol < GRID_SIZE) {
                 const newIndex = newRow * GRID_SIZE + newCol;
-                const cell = grid[newIndex];
-
+                const targetCell = grid[newIndex];
+                
                 if (mines.has(newIndex)) {
-                    // Flag mine if found
-                    if (!cell.classList.contains('flagged')) {
-                        cell.classList.add('flagged');
+                    // Flag mines
+                    if (!targetCell.classList.contains('flagged')) {
+                        targetCell.classList.add('flagged');
                         flagsRemaining--;
                     }
                 } else {
-                    // Reveal safe cell
-                    revealCell(cell);
+                    // Reveal safe cells
+                    revealCell(targetCell);
                 }
             }
         }
     }
 
     updateDisplay();
-    updateSmallBombButton();
-    alert('Small Bomb detonated! 3x3 area revealed and mines flagged! 💣');
+    alert('Small Bomb used! 3x3 area revealed and mines flagged! (-599 points)');
 }
 
 function setupInstantLossButton() {
