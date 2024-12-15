@@ -197,75 +197,65 @@ function createGrid() {
 
     const mobileControls = createMobileControls();
 
-    // Add this function to handle double tap
-    function enableDoubleTap(element) {
-        let lastTap = 0;
-        let timeout;
-
-        element.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-
-            clearTimeout(timeout);
-
-            if (tapLength < 300 && tapLength > 0) {
-                // Double tap detected
-                if (doubleClickEnabled && element.classList.contains('revealed')) {
-                    console.log('Double tap executed');
-                    handleDoubleClick(element);
-                }
-                e.preventDefault();
-            } else {
-                // Wait for second tap
-                timeout = setTimeout(function() {
-                    // Single tap action here
-                    const mode = mobileControls.getMode();
-                    switch(mode) {
-                        case 'bomb':
-                            if (smallBombUsedThisGame) {
-                                alert('Small Bomb has already been used in this game');
-                                return;
-                            }
-                            if (totalPoints < 599) {
-                                alert('Not enough points! Need 599 points to use Small Bomb');
-                                return;
-                            }
-                            useSmallBomb(element);
-                            break;
-                        case 'flag':
-                            handleRightClick(e, element);
-                            break;
-                        case 'reveal':
-                            handleClick(element);
-                            break;
-                    }
-                }, 300);
-            }
-            lastTap = currentTime;
-        });
-    }
-
     for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
         cell.dataset.index = i;
 
-        // Enable double tap for this cell
-        enableDoubleTap(cell);
-
-        // Long press for flagging
         let pressTimer;
-        
+        let isTouching = false;
+
         cell.addEventListener('touchstart', function(e) {
             e.preventDefault();
+            isTouching = true;
+            
             pressTimer = setTimeout(function() {
-                handleRightClick(e, cell);
+                if (isTouching) {
+                    if (cell.classList.contains('revealed')) {
+                        // Long press on revealed cell - do area reveal
+                        console.log('Long press on revealed cell');
+                        handleDoubleClick(cell);
+                    } else {
+                        // Long press on unrevealed cell - flag
+                        handleRightClick(e, cell);
+                    }
+                }
             }, 500);
         });
 
         cell.addEventListener('touchend', function(e) {
             e.preventDefault();
+            isTouching = false;
+            clearTimeout(pressTimer);
+
+            // Only handle single tap if the press timer wasn't triggered
+            if (pressTimer) {
+                const mode = mobileControls.getMode();
+                switch(mode) {
+                    case 'bomb':
+                        if (smallBombUsedThisGame) {
+                            alert('Small Bomb has already been used in this game');
+                            return;
+                        }
+                        if (totalPoints < 599) {
+                            alert('Not enough points! Need 599 points to use Small Bomb');
+                            return;
+                        }
+                        useSmallBomb(cell);
+                        break;
+                    case 'flag':
+                        handleRightClick(e, cell);
+                        break;
+                    case 'reveal':
+                        handleClick(cell);
+                        break;
+                }
+            }
+        });
+
+        cell.addEventListener('touchcancel', function(e) {
+            e.preventDefault();
+            isTouching = false;
             clearTimeout(pressTimer);
         });
 
