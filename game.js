@@ -152,14 +152,19 @@ function createMobileControls() {
 
     // Bomb button handler
     bombBtn.addEventListener('click', () => {
-        if (!smallBombAvailable || totalPoints < 599) {
-            alert('Cannot use Small Bomb: Not enough points or already used');
+        if (!smallBombAvailable) {
+            alert('Small Bomb has already been used');
+            return;
+        }
+        if (totalPoints < 599) {
+            alert('Not enough points! Need 599 points to use Small Bomb');
             return;
         }
         currentMode = 'bomb';
         bombBtn.style.backgroundColor = '#45a049';
         flagBtn.style.backgroundColor = '#4CAF50';
         revealBtn.style.backgroundColor = '#4CAF50';
+        console.log('Mode switched to: bomb');
     });
 
     // Add all three buttons
@@ -733,8 +738,16 @@ function updateSmallBombButton() {
 function useSmallBomb(cell) {
     console.log('Small bomb function called'); // Debug log
     
-    if (!gameActive || !smallBombAvailable || totalPoints < 599) {
-        alert('Cannot use Small Bomb: Not enough points or already used');
+    if (!gameActive) {
+        alert('Game is not active');
+        return;
+    }
+    if (!smallBombAvailable) {
+        alert('Small Bomb has already been used');
+        return;
+    }
+    if (totalPoints < 599) {
+        alert('Not enough points! Need 599 points to use Small Bomb');
         return;
     }
 
