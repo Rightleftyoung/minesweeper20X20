@@ -96,19 +96,30 @@ function createMobileControls() {
 
     const controlsDiv = document.createElement('div');
     controlsDiv.id = 'mobile-controls';
+    controlsDiv.style.marginBottom = '10px';  // Add some spacing
     
     // Create ONLY Flag and Reveal buttons
     const flagBtn = document.createElement('button');
-    flagBtn.textContent = 'Flag';
+    flagBtn.textContent = '🚩 Flag';
     flagBtn.className = 'mobile-control-btn';
+    flagBtn.style.padding = '10px 20px';
+    flagBtn.style.margin = '0 5px';
+    flagBtn.style.backgroundColor = '#4CAF50';
+    flagBtn.style.color = 'white';
+    flagBtn.style.border = 'none';
+    flagBtn.style.borderRadius = '5px';
 
     const revealBtn = document.createElement('button');
-    revealBtn.textContent = 'Reveal';
+    revealBtn.textContent = '🔍 Reveal';
     revealBtn.className = 'mobile-control-btn';
+    revealBtn.style.padding = '10px 20px';
+    revealBtn.style.margin = '0 5px';
     revealBtn.style.backgroundColor = '#45a049';
+    revealBtn.style.color = 'white';
+    revealBtn.style.border = 'none';
+    revealBtn.style.borderRadius = '5px';
 
     let currentMode = 'reveal';
-    let selectedCell = null;
 
     // Flag button handler
     flagBtn.addEventListener('click', () => {
@@ -128,10 +139,10 @@ function createMobileControls() {
     controlsDiv.appendChild(flagBtn);
     controlsDiv.appendChild(revealBtn);
 
-    // Find the menu div and insert controls
-    const menuDiv = document.querySelector('.menu');
-    if (menuDiv) {
-        menuDiv.appendChild(controlsDiv);
+    // Add controls to the game wrapper at the top
+    const gameWrapper = document.getElementById('game-wrapper');
+    if (gameWrapper) {
+        gameWrapper.insertBefore(controlsDiv, gameWrapper.firstChild);
     }
 
     return {
@@ -222,6 +233,7 @@ function initializeGame() {
     allExistingControls.forEach(control => control.remove());
     
     createGrid();
+    placeMines();
     updateDisplay();
     
     if (timerInterval) {
