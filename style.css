@@ -4,6 +4,16 @@ body {
     justify-content: center;
     background-color: #f0f0f0;
     margin: 20px;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: none;
+    overflow: hidden;
 }
 
 .container {
@@ -27,26 +37,31 @@ body {
     touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .cell {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: none;
+    position: relative;
     width: 30px;
     height: 30px;
-    background-color: #ccc;
+    background: #ccc;
+    border: 1px solid #999;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
     cursor: pointer;
-    user-select: none;
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none;   /* Safari */
-    -khtml-user-select: none;    /* Konqueror HTML */
-    -moz-user-select: none;      /* Firefox */
-    -ms-user-select: none;       /* Internet Explorer/Edge */
-    user-select: none;           /* Non-prefixed version */
-    touch-action: none;
+    pointer-events: auto;
 }
 
 .cell.revealed {
@@ -130,4 +145,14 @@ button {
 #total-points {
     font-weight: bold;
     margin-bottom: 5px;
+}
+
+/* Disable text selection globally */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

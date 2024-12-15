@@ -101,54 +101,50 @@ function createGrid() {
     gridElement.innerHTML = '';
     grid = [];
     
+    // Prevent text selection on the entire grid
+    gridElement.addEventListener('selectstart', (e) => e.preventDefault());
+    gridElement.addEventListener('contextmenu', (e) => e.preventDefault());
+    
     for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
         cell.dataset.index = i;
         
-        // Mobile touch events
-        let touchStartTime = 0;
-        let touchTimer = null;
-        let hasMoved = false;
-        
-        // Touch start - begin timing for long press
+        // Prevent default touch behaviors
         cell.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Prevent default behavior
-            touchStartTime = Date.now();
-            hasMoved = false;
-            
-            // Set up long press timer
-            touchTimer = setTimeout(() => {
-                if (!hasMoved) {
-                    handleRightClick(e, cell); // Flag cell on long press
-                }
-            }, 500); // 500ms for long press
-        });
-        
-        // Touch move - cancel if user moves finger
-        cell.addEventListener('touchmove', () => {
-            hasMoved = true;
-            if (touchTimer) {
-                clearTimeout(touchTimer);
-            }
-        });
-        
-        // Touch end - handle tap and double tap
-        cell.addEventListener('touchend', (e) => {
             e.preventDefault();
-            if (touchTimer) {
-                clearTimeout(touchTimer);
-            }
+            e.stopPropagation();
             
-            const touchEndTime = Date.now();
-            const touchDuration = touchEndTime - touchStartTime;
+            const touch = e.touches[0];
+            const startTime = Date.now();
+            let isLongPress = false;
             
-            if (!hasMoved) {
-                if (touchDuration < 500) { // Short tap
-                    handleClick(cell);
+            const longPressTimer = setTimeout(() => {
+                isLongPress = true;
+                handleRightClick(e, cell); // Flag on long press
+            }, 500);
+            
+            const touchEndHandler = (e) => {
+                e.preventDefault();
+                clearTimeout(longPressTimer);
+                
+                if (!isLongPress && (Date.now() - startTime) < 500) {
+                    handleClick(cell); // Regular click on short press
                 }
-            }
-        });
+                
+                cell.removeEventListener('touchend', touchEndHandler);
+                cell.removeEventListener('touchmove', touchMoveHandler);
+            };
+            
+            const touchMoveHandler = () => {
+                clearTimeout(longPressTimer);
+                cell.removeEventListener('touchend', touchEndHandler);
+                cell.removeEventListener('touchmove', touchMoveHandler);
+            };
+            
+            cell.addEventListener('touchend', touchEndHandler);
+            cell.addEventListener('touchmove', touchMoveHandler);
+        }, { passive: false });
         
         // Keep desktop events
         cell.addEventListener('click', (e) => {
