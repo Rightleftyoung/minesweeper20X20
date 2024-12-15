@@ -90,6 +90,12 @@ document.head.appendChild(styleSheet);
 
 // Add this function to create mobile controls
 function createMobileControls() {
+    // First, remove any existing mobile controls
+    const existingControls = document.getElementById('mobile-controls');
+    if (existingControls) {
+        existingControls.remove();
+    }
+
     const controlsDiv = document.createElement('div');
     controlsDiv.id = 'mobile-controls';
     controlsDiv.style.marginTop = '20px';
@@ -100,7 +106,7 @@ function createMobileControls() {
     controlsDiv.style.backgroundColor = '#f0f0f0';
     controlsDiv.style.padding = '10px';    
 
-    // Create just the two main buttons
+    // Create ONLY Flag and Reveal buttons
     const flagBtn = document.createElement('button');
     flagBtn.textContent = 'Flag';
     flagBtn.className = 'mobile-control-btn';
@@ -108,7 +114,7 @@ function createMobileControls() {
     const revealBtn = document.createElement('button');
     revealBtn.textContent = 'Reveal';
     revealBtn.className = 'mobile-control-btn';
-    revealBtn.style.backgroundColor = '#45a049'; // Highlight active mode
+    revealBtn.style.backgroundColor = '#45a049';
 
     let currentMode = 'reveal';
     let selectedCell = null;
@@ -127,7 +133,7 @@ function createMobileControls() {
         flagBtn.style.backgroundColor = '#4CAF50';
     });
 
-    // Add buttons to controls
+    // Add ONLY these two buttons
     controlsDiv.appendChild(flagBtn);
     controlsDiv.appendChild(revealBtn);
 
@@ -135,20 +141,8 @@ function createMobileControls() {
     document.getElementById('game-wrapper').appendChild(controlsDiv);
 
     return {
-        getMode: () => {
-            if (currentMode === 'bomb') {
-                currentMode = 'reveal';
-                revealBtn.style.backgroundColor = '#45a049';
-                flagBtn.style.backgroundColor = '#4CAF50';
-            }
-            return currentMode;
-        },
-        setSelectedCell: (cell) => { selectedCell = cell; },
-        setBombMode: () => {
-            currentMode = 'bomb';
-            flagBtn.style.backgroundColor = '#4CAF50';
-            revealBtn.style.backgroundColor = '#4CAF50';
-        }
+        getMode: () => currentMode,
+        setSelectedCell: (cell) => { selectedCell = cell; }
     };
 }
 
