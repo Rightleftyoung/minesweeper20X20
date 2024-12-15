@@ -202,6 +202,22 @@ function createGrid() {
         cell.className = 'cell';
         cell.dataset.index = i;
 
+        // Add double tap detection
+        let lastTap = 0;
+        cell.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            if (tapLength < 500 && tapLength > 0) {
+                // Double tap detected
+                if (doubleClickEnabled) {
+                    handleDoubleClick(cell);
+                }
+            }
+            lastTap = currentTime;
+        });
+
         cell.addEventListener('click', (e) => {
             e.preventDefault();
             
