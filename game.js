@@ -135,8 +135,20 @@ function createMobileControls() {
     document.getElementById('game-wrapper').appendChild(controlsDiv);
 
     return {
-        getMode: () => currentMode,
-        setSelectedCell: (cell) => { selectedCell = cell; }
+        getMode: () => {
+            if (currentMode === 'bomb') {
+                currentMode = 'reveal';
+                revealBtn.style.backgroundColor = '#45a049';
+                flagBtn.style.backgroundColor = '#4CAF50';
+            }
+            return currentMode;
+        },
+        setSelectedCell: (cell) => { selectedCell = cell; },
+        setBombMode: () => {
+            currentMode = 'bomb';
+            flagBtn.style.backgroundColor = '#4CAF50';
+            revealBtn.style.backgroundColor = '#4CAF50';
+        }
     };
 }
 
