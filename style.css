@@ -149,30 +149,28 @@ button {
     border: none;
     border-radius: 5px;
     padding: 10px 20px;
-    margin: 5px;
     font-size: 16px;
     cursor: pointer;
-    min-width: 120px;
+    flex: 1;
+    max-width: 150px;
+    margin: 0 5px;
 }
 
 .mobile-control-btn:active {
     background-color: #45a049;
 }
 
-.mobile-control-btn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
 #mobile-controls {
-    margin-top: 20px;
-    text-align: center;
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: center;
-    flex-wrap: wrap;
     gap: 10px;
     padding: 10px;
-    padding-bottom: 50px;
+    background-color: #f0f0f0;
+    z-index: 1000;
 }
 
 @media screen and (max-width: 600px) {
@@ -190,4 +188,9 @@ button {
         font-size: 14px;
         min-width: 100px;
     }
+}
+
+/* Add padding to main content to prevent buttons from covering game area */
+#game-wrapper {
+    padding-bottom: 80px;
 }

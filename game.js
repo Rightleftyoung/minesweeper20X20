@@ -93,69 +93,76 @@ function createMobileControls() {
     const controlsDiv = document.createElement('div');
     controlsDiv.id = 'mobile-controls';
     controlsDiv.style.marginTop = '20px';
+    controlsDiv.style.position = 'fixed';  // Fix position at bottom
+    controlsDiv.style.bottom = '20px';     // Distance from bottom
+    controlsDiv.style.left = '0';          // Align to left
+    controlsDiv.style.right = '0';         // Align to right
+    controlsDiv.style.backgroundColor = '#f0f0f0'; // Match background
+    controlsDiv.style.padding = '10px';    // Add padding
 
-    // Mode toggle button
-    const modeToggle = document.createElement('button');
-    modeToggle.textContent = 'Mode: Reveal';
-    modeToggle.className = 'mobile-control-btn';
+    // Create the 3 main buttons
+    const flagBtn = document.createElement('button');
+    flagBtn.textContent = 'Flag';
+    flagBtn.className = 'mobile-control-btn';
 
-    // Quick reveal button
-    const quickRevealBtn = document.createElement('button');
-    quickRevealBtn.textContent = 'Quick Reveal';
-    quickRevealBtn.className = 'mobile-control-btn';
+    const revealBtn = document.createElement('button');
+    revealBtn.textContent = 'Reveal';
+    revealBtn.className = 'mobile-control-btn';
+    revealBtn.style.backgroundColor = '#45a049'; // Highlight active mode
 
-    // Small bomb button
-    const smallBombBtn = document.createElement('button');
-    smallBombBtn.textContent = 'Small Bomb (599 pts)';
-    smallBombBtn.className = 'mobile-control-btn';
+    const bombBtn = document.createElement('button');
+    bombBtn.textContent = 'Small Bomb (599 pts)';
+    bombBtn.className = 'mobile-control-btn';
 
-    let isRevealMode = true;
-    let isBombMode = false;
+    let currentMode = 'reveal';
     let selectedCell = null;
 
-    // Mode toggle handler
-    modeToggle.addEventListener('click', () => {
-        if (!isBombMode) {
-            isRevealMode = !isRevealMode;
-            modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
-        }
+    // Flag button handler
+    flagBtn.addEventListener('click', () => {
+        currentMode = 'flag';
+        flagBtn.style.backgroundColor = '#45a049';
+        revealBtn.style.backgroundColor = '#4CAF50';
+        bombBtn.style.backgroundColor = '#4CAF50';
     });
 
-    // Quick reveal handler
-    quickRevealBtn.addEventListener('click', () => {
-        if (selectedCell && doubleClickEnabled) {
-            handleDoubleClick(selectedCell);
-        }
+    // Reveal button handler
+    revealBtn.addEventListener('click', () => {
+        currentMode = 'reveal';
+        revealBtn.style.backgroundColor = '#45a049';
+        flagBtn.style.backgroundColor = '#4CAF50';
+        bombBtn.style.backgroundColor = '#4CAF50';
     });
 
-    // Small bomb handler
-    smallBombBtn.addEventListener('click', () => {
+    // Bomb button handler
+    bombBtn.addEventListener('click', () => {
         if (!gameActive || !smallBombAvailable || totalPoints < 599) {
             alert('Small Bomb not available: Game not active, already used, or insufficient points');
             return;
         }
-
-        isBombMode = true;
-        modeToggle.textContent = 'Mode: BOMB';
+        currentMode = 'bomb';
+        bombBtn.style.backgroundColor = '#45a049';
+        flagBtn.style.backgroundColor = '#4CAF50';
+        revealBtn.style.backgroundColor = '#4CAF50';
         alert('Select a cell to use the Small Bomb');
     });
 
     // Add buttons to controls
-    controlsDiv.appendChild(modeToggle);
-    controlsDiv.appendChild(quickRevealBtn);
-    controlsDiv.appendChild(smallBombBtn);
+    controlsDiv.appendChild(flagBtn);
+    controlsDiv.appendChild(revealBtn);
+    controlsDiv.appendChild(bombBtn);
 
     // Add controls to page
     document.getElementById('game-wrapper').appendChild(controlsDiv);
 
     return {
         getMode: () => {
-            if (isBombMode) {
-                isBombMode = false;
-                modeToggle.textContent = `Mode: ${isRevealMode ? 'Reveal' : 'Flag'}`;
-                return 'bomb';
+            const mode = currentMode;
+            if (mode === 'bomb') {
+                currentMode = 'reveal';
+                revealBtn.style.backgroundColor = '#45a049';
+                bombBtn.style.backgroundColor = '#4CAF50';
             }
-            return isRevealMode ? 'reveal' : 'flag';
+            return mode;
         },
         setSelectedCell: (cell) => { selectedCell = cell; }
     };
