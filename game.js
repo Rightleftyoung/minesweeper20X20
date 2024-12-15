@@ -110,41 +110,65 @@ function createGrid() {
         cell.className = 'cell';
         cell.dataset.index = i;
         
-        // Prevent default touch behaviors
+        // Variables for touch handling
+        let lastTap = 0;
+        let longPressTimer = null;
+        let isSwiping = false;
+        
+        // Touch start handler
         cell.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            e.stopPropagation();
+            isSwiping = false;
             
-            const touch = e.touches[0];
-            const startTime = Date.now();
-            let isLongPress = false;
+            const currentTime = new Date().getTime();
+            const tapGap = currentTime - lastTap;
             
-            const longPressTimer = setTimeout(() => {
-                isLongPress = true;
-                handleRightClick(e, cell); // Flag on long press
-            }, 500);
-            
-            const touchEndHandler = (e) => {
-                e.preventDefault();
-                clearTimeout(longPressTimer);
+            if (tapGap < 300 && tapGap > 0) {
+                // Clear any pending long press
+                if (longPressTimer) clearTimeout(longPressTimer);
                 
-                if (!isLongPress && (Date.now() - startTime) < 500) {
-                    handleClick(cell); // Regular click on short press
+                // Double tap detected
+                if (doubleClickEnabled) {
+                    console.log('Double tap detected');  // Debug log
+                    handleDoubleClick(cell);
                 }
+                lastTap = 0;  // Reset last tap
+            } else {
+                // Start long press timer
+                longPressTimer = setTimeout(() => {
+                    if (!isSwiping) {
+                        console.log('Long press detected');  // Debug log
+                        handleRightClick(e, cell);
+                    }
+                }, 500);
                 
-                cell.removeEventListener('touchend', touchEndHandler);
-                cell.removeEventListener('touchmove', touchMoveHandler);
-            };
-            
-            const touchMoveHandler = () => {
-                clearTimeout(longPressTimer);
-                cell.removeEventListener('touchend', touchEndHandler);
-                cell.removeEventListener('touchmove', touchMoveHandler);
-            };
-            
-            cell.addEventListener('touchend', touchEndHandler);
-            cell.addEventListener('touchmove', touchMoveHandler);
+                lastTap = currentTime;
+            }
         }, { passive: false });
+        
+        // Touch move handler
+        cell.addEventListener('touchmove', () => {
+            isSwiping = true;
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+            }
+        });
+        
+        // Touch end handler
+        cell.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            
+            // Clear long press timer
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+            }
+            
+            // If not swiping and not a double tap, handle as single tap
+            if (!isSwiping && (new Date().getTime() - lastTap) >= 300) {
+                console.log('Single tap detected');  // Debug log
+                handleClick(cell);
+            }
+        });
         
         // Keep desktop events
         cell.addEventListener('click', (e) => {
@@ -155,6 +179,13 @@ function createGrid() {
         cell.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             handleRightClick(e, cell);
+        });
+        
+        cell.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            if (doubleClickEnabled) {
+                handleDoubleClick(cell);
+            }
         });
         
         gridElement.appendChild(cell);
@@ -411,7 +442,9 @@ function endGame(won) {
 }
 
 function handleDoubleClick(cell) {
+    console.log('Double click/tap function called');  // Debug log
     if (!gameActive || !cell.classList.contains('revealed')) {
+        console.log('Cell not eligible for double click');  // Debug log
         return;
     }
     
@@ -441,11 +474,14 @@ function handleDoubleClick(cell) {
         }
     }
     
+    console.log(`Flags: ${flagCount}, Adjacent mines: ${getAdjacentMines(index)}`);  // Debug log
+    
     // Get the number in the cell
     const adjacentMines = getAdjacentMines(index);
     
     // If flags match the number, reveal all unflagged adjacent cells
     if (flagCount === adjacentMines) {
+        console.log('Revealing adjacent cells');  // Debug log
         adjacentCells.forEach(adjacentCell => {
             handleClick(adjacentCell);
         });
