@@ -223,13 +223,46 @@ function createGrid() {
         let pressTimer;
         let isTouching = false;
         let lastTap = 0;
+        let clicks = 0;
+        let clickTimer = null;
 
-        // Add desktop double-click handler
-        cell.addEventListener('dblclick', function(e) {
-            e.preventDefault();
-            if (doubleClickEnabled && cell.classList.contains('revealed')) {
-                console.log('Desktop double-click detected');
-                handleDoubleClick(cell);
+        // Desktop double click detection
+        cell.addEventListener('click', function(e) {
+            clicks++;
+            
+            if (clicks === 1) {
+                clickTimer = setTimeout(function() {
+                    // Single click action
+                    clicks = 0;
+                    const mode = mobileControls.getMode();
+                    switch(mode) {
+                        case 'bomb':
+                            if (smallBombUsedThisGame) {
+                                alert('Small Bomb has already been used in this game');
+                                return;
+                            }
+                            if (totalPoints < 599) {
+                                alert('Not enough points! Need 599 points to use Small Bomb');
+                                return;
+                            }
+                            useSmallBomb(cell);
+                            break;
+                        case 'flag':
+                            handleRightClick(e, cell);
+                            break;
+                        case 'reveal':
+                            handleClick(cell);
+                            break;
+                    }
+                }, 300);
+            } else if (clicks === 2) {
+                clearTimeout(clickTimer);
+                clicks = 0;
+                // Double click action
+                if (doubleClickEnabled && cell.classList.contains('revealed')) {
+                    console.log('Desktop double-click detected');
+                    handleDoubleClick(cell);
+                }
             }
         });
 
@@ -297,31 +330,6 @@ function createGrid() {
             e.preventDefault();
             isTouching = false;
             clearTimeout(pressTimer);
-        });
-
-        cell.addEventListener('click', (e) => {
-            e.preventDefault();
-            const mode = mobileControls.getMode();
-            
-            switch(mode) {
-                case 'bomb':
-                    if (smallBombUsedThisGame) {
-                        alert('Small Bomb has already been used in this game');
-                        return;
-                    }
-                    if (totalPoints < 599) {
-                        alert('Not enough points! Need 599 points to use Small Bomb');
-                        return;
-                    }
-                    useSmallBomb(cell);
-                    break;
-                case 'flag':
-                    handleRightClick(e, cell);
-                    break;
-                case 'reveal':
-                    handleClick(cell);
-                    break;
-            }
         });
 
         cell.addEventListener('contextmenu', (e) => {
