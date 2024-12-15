@@ -223,55 +223,30 @@ function createGrid() {
         let pressTimer;
         let isTouching = false;
         let lastTap = 0;
-        let lastClick = 0;
+        
+        // Track mouse buttons
+        let leftPressed = false;
+        let rightPressed = false;
 
-        // Desktop click handler with double-click detection
-        cell.addEventListener('click', function(e) {
-            const now = Date.now();
-            const timeSinceLastClick = now - lastClick;
+        // Mouse down handler
+        cell.addEventListener('mousedown', function(e) {
+            if (e.button === 0) leftPressed = true;  // Left click
+            if (e.button === 2) rightPressed = true; // Right click
             
-            if (timeSinceLastClick < 300) {
-                // Double click detected
-                if (doubleClickEnabled && cell.classList.contains('revealed')) {
-                    console.log('Desktop double-click detected');
-                    e.preventDefault();
+            // If both buttons are pressed and double click is enabled
+            if (leftPressed && rightPressed && doubleClickEnabled) {
+                if (cell.classList.contains('revealed')) {
+                    console.log('Both buttons pressed on revealed cell');
                     handleDoubleClick(cell);
                 }
-            } else {
-                // Single click
-                const mode = mobileControls.getMode();
-                switch(mode) {
-                    case 'bomb':
-                        if (smallBombUsedThisGame) {
-                            alert('Small Bomb has already been used in this game');
-                            return;
-                        }
-                        if (totalPoints < 599) {
-                            alert('Not enough points! Need 599 points to use Small Bomb');
-                            return;
-                        }
-                        useSmallBomb(cell);
-                        break;
-                    case 'flag':
-                        handleRightClick(e, cell);
-                        break;
-                    case 'reveal':
-                        handleClick(cell);
-                        break;
-                }
             }
-            lastClick = now;
         });
 
-        function handleLongPress(e) {
-            if (!doubleClickEnabled) return;
-            if (cell.classList.contains('revealed')) {
-                console.log('Long press on revealed cell, double click enabled:', doubleClickEnabled);
-                handleDoubleClick(cell);
-            } else {
-                handleRightClick(e, cell);
-            }
-        }
+        // Mouse up handler
+        cell.addEventListener('mouseup', function(e) {
+            if (e.button === 0) leftPressed = false;  // Left click released
+            if (e.button === 2) rightPressed = false; // Right click released
+        });
 
         // Mobile touch handlers
         cell.addEventListener('touchstart', function(e) {
